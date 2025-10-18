@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "MSPro Legal — Upload & Links",
-    "version": "1.3.4",
-    "description": "Юридический агент MSPro Legal Agent: загрузка и индексация документов Supabase, фиксация дел, генерация публичных ссылок и поиск по смыслу (pgvector)."
+    "version": "1.3.5",
+    "description": "Финальная версия схемы MSPro Legal Agent. Поддерживает загрузку документов, фиксацию, генерацию публичных ссылок и автоиндексацию через Supabase (pgvector)."
   },
   "servers": [
     {
@@ -12,14 +12,10 @@
   ],
   "components": {
     "securitySchemes": {
-      "apiKey": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "apikey"
-      },
       "bearerAuth": {
         "type": "http",
-        "scheme": "bearer"
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     },
     "schemas": {
@@ -30,7 +26,7 @@
           "p_original_name": { "type": "string" },
           "p_storage_src_path": {
             "type": "string",
-            "description": "Временный путь файла (например inbox/uuid.tmp)"
+            "description": "Временный путь файла, например inbox/uuid.tmp"
           },
           "p_type": { "type": "string", "default": "file" },
           "p_case_hint": { "type": "string", "format": "uuid", "nullable": true },
@@ -71,7 +67,6 @@
     }
   },
   "security": [
-    { "apiKey": [] },
     { "bearerAuth": [] }
   ],
   "paths": {
