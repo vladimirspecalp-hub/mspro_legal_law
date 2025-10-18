@@ -1,0 +1,179 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "MSPro Legal Agent — Final (No-Key Mode)",
+    "version": "1.3.8",
+    "description": "Финальная версия API-схемы MSPro Legal Agent без авторизации. Работает через функцию rpc_proxy() с SECURITY DEFINER внутри Supabase, что обеспечивает полные права выполнения без необходимости указывать API-ключ."
+  },
+  "servers": [
+    {
+      "url": "https://lmqhpvqhardpluneonul.supabase.co"
+    }
+  ],
+  "paths": {
+    "/rest/v1/rpc/rpc_proxy": {
+      "post": {
+        "summary": "Единая прокси-функция Supabase без ключей (через SECURITY DEFINER)",
+        "operationId": "rpc_proxy_call",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "p_function": {
+                    "type": "string",
+                    "description": "Имя функции Supabase для вызова (например, stage_file_ref, commit_session, find_documents)."
+                  },
+                  "p_payload": {
+                    "type": "object",
+                    "description": "JSON-параметры, передаваемые во внутреннюю функцию Supabase."
+                  }
+                },
+                "required": ["p_function"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Успешный ответ от Supabase rpc_proxy."
+          },
+          "400": {
+            "description": "Ошибка запроса или некорректные параметры."
+          },
+          "500": {
+            "description": "Ошибка Supabase или внутренней функции."
+          }
+        }
+      }
+    },
+    "/rest/v1/rpc/stage_file_ref": {
+      "post": {
+        "summary": "Поставить загруженный файл в буфер сессии",
+        "operationId": "stage_file_ref",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "p_session_id": { "type": "string" },
+                  "p_original_name": { "type": "string" },
+                  "p_storage_src_path": { "type": "string" },
+                  "p_type": { "type": "string", "default": "file" },
+                  "p_case_hint": { "type": "string", "nullable": true },
+                  "p_content_preview": { "type": "string", "nullable": true }
+                },
+                "required": ["p_session_id", "p_original_name"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Файл добавлен в буфер сессии." }
+        }
+      }
+    },
+    "/rest/v1/rpc/commit_session": {
+      "post": {
+        "summary": "Фиксация документа и создание публичной ссылки",
+        "operationId": "commit_session",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "p_session_id": { "type": "string" },
+                  "p_default_folder": { "type": "string", "default": "documents" }
+                },
+                "required": ["p_session_id"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Документ успешно зафиксирован." }
+        }
+      }
+    },
+    "/rest/v1/rpc/find_documents": {
+      "post": {
+        "summary": "Поиск документов по смыслу (через pgvector)",
+        "operationId": "find_documents",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "p_query": { "type": "string" },
+                  "p_limit": { "type": "integer", "default": 10 },
+                  "p_case_id": { "type": "string", "nullable": true }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Результаты поиска успешно возвращены." }
+        }
+      }
+    },
+    "/rest/v1/rpc/public_link_by_path": {
+      "post": {
+        "summary": "Создание публичной ссылки на файл в Supabase Storage",
+        "operationId": "public_link_by_path",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "p_path": {
+                    "type": "string",
+                    "description": "Путь к файлу в Supabase Storage."
+                  }
+                },
+                "required": ["p_path"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Публичная ссылка успешно создана." }
+        }
+      }
+    },
+    "/rest/v1/rpc/embed_document": {
+      "post": {
+        "summary": "Создание embedding (векторной индексации) документа",
+        "operationId": "embed_document",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "p_document_id": { "type": "string" },
+                  "p_text": { "type": "string" }
+                },
+                "required": ["p_document_id", "p_text"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Embedding успешно создан." }
+        }
+      }
+    }
+  }
+}
