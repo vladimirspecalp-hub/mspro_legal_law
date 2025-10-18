@@ -1,0 +1,60 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "MSPro Legal Proxy API",
+    "version": "1.3.6",
+    "description": "Финальная прокси-схема для MSPro Legal Agent. Все вызовы Supabase выполняются через внутреннюю функцию rpc_proxy под service_role без необходимости передачи API-ключа."
+  },
+  "servers": [
+    {
+      "url": "https://lmqhpvqhardpluneonul.supabase.co"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "ProxyRequest": {
+        "type": "object",
+        "properties": {
+          "p_function": {
+            "type": "string",
+            "description": "Имя вызываемой функции Supabase, например stage_file_ref, commit_session, find_documents, embed_document и т.д."
+          },
+          "p_payload": {
+            "type": "object",
+            "description": "JSON-параметры, которые передаются во внутреннюю функцию Supabase."
+          }
+        },
+        "required": ["p_function", "p_payload"]
+      }
+    }
+  },
+  "security": [{ "bearerAuth": [] }],
+  "paths": {
+    "/rest/v1/rpc/rpc_proxy": {
+      "post": {
+        "summary": "Универсальный прокси-вызов Supabase функций для MSPro Legal Agent",
+        "operationId": "rpc_proxy_call",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProxyRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Ответ от Supabase rpc_proxy" },
+          "400": { "description": "Ошибка запроса или отсутствуют параметры" },
+          "500": { "description": "Ошибка Supabase или внутренняя ошибка функции" }
+        }
+      }
+    }
+  }
+}
