@@ -1,9 +1,9 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "MSPro Legal Proxy API",
-    "version": "1.3.6",
-    "description": "Финальная прокси-схема для MSPro Legal Agent. Все вызовы Supabase выполняются через внутреннюю функцию rpc_proxy под service_role без необходимости передачи API-ключа."
+    "title": "MSPro Legal Agent — Proxy API (Stable Release)",
+    "version": "1.3.7",
+    "description": "Финальная версия прокси-схемы MSPro Legal Agent. Поддерживает безопасную работу с Supabase через rpc_proxy без потери API-ключа. Двойная авторизация (Authorization + apikey)."
   },
   "servers": [
     {
@@ -15,7 +15,8 @@
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "bearerFormat": "JWT"
+        "bearerFormat": "JWT",
+        "description": "Используйте service_role ключ из Supabase. Он подставится в Authorization и apikey."
       }
     },
     "schemas": {
@@ -24,11 +25,11 @@
         "properties": {
           "p_function": {
             "type": "string",
-            "description": "Имя вызываемой функции Supabase, например stage_file_ref, commit_session, find_documents, embed_document и т.д."
+            "description": "Имя внутренней функции Supabase, например stage_file_ref, commit_session, find_documents, public_link_by_path, embed_document."
           },
           "p_payload": {
             "type": "object",
-            "description": "JSON-параметры, которые передаются во внутреннюю функцию Supabase."
+            "description": "JSON-параметры, передаваемые во внутреннюю функцию."
           }
         },
         "required": ["p_function", "p_payload"]
@@ -39,8 +40,17 @@
   "paths": {
     "/rest/v1/rpc/rpc_proxy": {
       "post": {
-        "summary": "Универсальный прокси-вызов Supabase функций для MSPro Legal Agent",
+        "summary": "Единый прокси-вызов Supabase функций (через service_role)",
         "operationId": "rpc_proxy_call",
+        "parameters": [
+          {
+            "name": "apikey",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Service Role Key из Supabase (автоматически подставляется)."
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -50,10 +60,83 @@
           }
         },
         "responses": {
-          "200": { "description": "Ответ от Supabase rpc_proxy" },
-          "400": { "description": "Ошибка запроса или отсутствуют параметры" },
-          "500": { "description": "Ошибка Supabase или внутренняя ошибка функции" }
+          "200": { "description": "Успешный ответ от Supabase rpc_proxy." },
+          "400": { "description": "Ошибка запроса или отсутствуют параметры." },
+          "401": { "description": "Ошибка авторизации — проверьте ключ." },
+          "500": { "description": "Ошибка Supabase или внутренняя ошибка функции." }
         }
+      }
+    },
+    "/rest/v1/rpc/stage_file_ref": {
+      "post": {
+        "summary": "Поставить загруженный файл в буфер сессии (через proxy)",
+        "operationId": "stage_file_ref",
+        "parameters": [
+          { "name": "apikey", "in": "header", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "type": "object" } }
+          }
+        },
+        "responses": { "200": { "description": "Файл добавлен в буфер сессии." } }
+      }
+    },
+    "/rest/v1/rpc/commit_session": {
+      "post": {
+        "summary": "Коммит сессии — фиксация документа, создание публичной ссылки",
+        "operationId": "commit_session",
+        "parameters": [
+          { "name": "apikey", "in": "header", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "type": "object" } } }
+        },
+        "responses": { "200": { "description": "Документ успешно зафиксирован." } }
+      }
+    },
+    "/rest/v1/rpc/find_documents": {
+      "post": {
+        "summary": "Поиск документов по смыслу (через pgvector)",
+        "operationId": "find_documents",
+        "parameters": [
+          { "name": "apikey", "in": "header", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "type": "object" } } }
+        },
+        "responses": { "200": { "description": "Результаты поиска." } }
+      }
+    },
+    "/rest/v1/rpc/public_link_by_path": {
+      "post": {
+        "summary": "Создать публичную ссылку для файла (через proxy)",
+        "operationId": "public_link_by_path",
+        "parameters": [
+          { "name": "apikey", "in": "header", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "type": "object" } } }
+        },
+        "responses": { "200": { "description": "Публичная ссылка успешно создана." } }
+      }
+    },
+    "/rest/v1/rpc/embed_document": {
+      "post": {
+        "summary": "Создать embedding (векторную индексацию) документа",
+        "operationId": "embed_document",
+        "parameters": [
+          { "name": "apikey", "in": "header", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "type": "object" } } }
+        },
+        "responses": { "200": { "description": "Embedding успешно создан." } }
       }
     }
   }
