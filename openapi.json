@@ -1,9 +1,9 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "MSPro Legal — Upload & Links",
-    "version": "1.3.5",
-    "description": "Финальная версия схемы MSPro Legal Agent. Поддерживает загрузку документов, фиксацию, генерацию публичных ссылок и автоиндексацию через Supabase (pgvector)."
+    "title": "MSPro Legal Proxy API",
+    "version": "1.3.6",
+    "description": "Финальная прокси-схема для MSPro Legal Agent. Все вызовы Supabase выполняются через внутреннюю функцию rpc_proxy под service_role без необходимости передачи API-ключа."
   },
   "servers": [
     {
@@ -19,160 +19,41 @@
       }
     },
     "schemas": {
-      "StageFileRef": {
+      "ProxyRequest": {
         "type": "object",
         "properties": {
-          "p_session_id": { "type": "string" },
-          "p_original_name": { "type": "string" },
-          "p_storage_src_path": {
+          "p_function": {
             "type": "string",
-            "description": "Временный путь файла, например inbox/uuid.tmp"
+            "description": "Имя вызываемой функции Supabase, например stage_file_ref, commit_session, find_documents, embed_document и т.д."
           },
-          "p_type": { "type": "string", "default": "file" },
-          "p_case_hint": { "type": "string", "format": "uuid", "nullable": true },
-          "p_content_preview": { "type": "string", "nullable": true }
+          "p_payload": {
+            "type": "object",
+            "description": "JSON-параметры, которые передаются во внутреннюю функцию Supabase."
+          }
         },
-        "required": ["p_session_id", "p_original_name"]
-      },
-      "CommitSession": {
-        "type": "object",
-        "properties": {
-          "p_session_id": { "type": "string" },
-          "p_default_folder": { "type": "string", "default": "documents" }
-        },
-        "required": ["p_session_id"]
-      },
-      "FindDocsRequest": {
-        "type": "object",
-        "properties": {
-          "p_query": { "type": "string", "nullable": true },
-          "p_case_id": { "type": "string", "format": "uuid", "nullable": true },
-          "p_days": { "type": "integer", "nullable": true },
-          "p_limit": { "type": "integer", "default": 10 }
-        }
-      },
-      "PublicLinkRequest": {
-        "type": "object",
-        "properties": { "p_path": { "type": "string" } },
-        "required": ["p_path"]
-      },
-      "EmbedDocument": {
-        "type": "object",
-        "properties": {
-          "p_doc_id": { "type": "string", "format": "uuid" },
-          "p_text": { "type": "string" }
-        },
-        "required": ["p_doc_id", "p_text"]
+        "required": ["p_function", "p_payload"]
       }
     }
   },
-  "security": [
-    { "bearerAuth": [] }
-  ],
+  "security": [{ "bearerAuth": [] }],
   "paths": {
-    "/storage/v1/object/legal/{path}": {
+    "/rest/v1/rpc/rpc_proxy": {
       "post": {
-        "summary": "Загрузить файл в bucket legal (multipart)",
-        "operationId": "storage_upload_legal",
-        "parameters": [
-          {
-            "name": "path",
-            "in": "path",
-            "required": true,
-            "description": "Путь сохранения файла, например inbox/{uuid}.pdf",
-            "schema": { "type": "string" }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "file": { "type": "string", "format": "binary" }
-                },
-                "required": ["file"]
-              }
-            }
-          }
-        },
-        "responses": { "200": { "description": "Файл успешно загружен" } }
-      }
-    },
-    "/rest/v1/rpc/stage_file_ref": {
-      "post": {
-        "summary": "Поставить загруженный файл в буфер сессии",
-        "operationId": "stage_file_ref",
+        "summary": "Универсальный прокси-вызов Supabase функций для MSPro Legal Agent",
+        "operationId": "rpc_proxy_call",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/StageFileRef" }
+              "schema": { "$ref": "#/components/schemas/ProxyRequest" }
             }
           }
         },
-        "responses": { "200": { "description": "UUID буферной записи" } }
-      }
-    },
-    "/rest/v1/rpc/commit_session": {
-      "post": {
-        "summary": "Коммит: перенос метаданных, журнал и создание публичной ссылки",
-        "operationId": "commit_session",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/CommitSession" }
-            }
-          }
-        },
-        "responses": { "200": { "description": "Документы успешно зафиксированы" } }
-      }
-    },
-    "/rest/v1/rpc/find_documents": {
-      "post": {
-        "summary": "Поиск документов по смыслу (pgvector)",
-        "operationId": "find_documents",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/FindDocsRequest" }
-            }
-          }
-        },
-        "responses": { "200": { "description": "Результаты поиска" } }
-      }
-    },
-    "/rest/v1/rpc/public_link_by_path": {
-      "post": {
-        "summary": "Создать публичную ссылку для файла по пути",
-        "operationId": "public_link_by_path",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/PublicLinkRequest" }
-            }
-          }
-        },
-        "responses": { "200": { "description": "Публичная ссылка успешно создана" } }
-      }
-    },
-    "/rest/v1/rpc/embed_document": {
-      "post": {
-        "summary": "Создать embedding документа (векторная индексация)",
-        "operationId": "embed_document",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/EmbedDocument" }
-            }
-          }
-        },
-        "responses": { "200": { "description": "Embedding успешно создан" } }
+        "responses": {
+          "200": { "description": "Ответ от Supabase rpc_proxy" },
+          "400": { "description": "Ошибка запроса или отсутствуют параметры" },
+          "500": { "description": "Ошибка Supabase или внутренняя ошибка функции" }
+        }
       }
     }
   }
