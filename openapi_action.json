@@ -1,0 +1,140 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "MSPro Legal Agent – Corporate Documents & Templates",
+    "version": "1.0.0",
+    "description": "Действие для MSPro Legal Agent. Позволяет агенту получать шаблоны и фирменные документы МСПРО напрямую из GitHub, где они лежат в корне репозитория."
+  },
+  "servers": [
+    {
+      "url": "https://raw.githubusercontent.com/vladimirspecalp-hub/mspro_legal_law/main"
+    }
+  ],
+  "paths": {
+    "/Firm_Branded_Header.docx": {
+      "get": {
+        "summary": "Фирменный бланк МСПРО",
+        "operationId": "get_firm_header",
+        "responses": {
+          "200": {
+            "description": "Файл фирменного бланка DOCX",
+            "content": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {}
+            }
+          }
+        }
+      }
+    },
+    "/EDO_Identifier.docx": {
+      "get": {
+        "summary": "Идентификатор Сбер ЭДО",
+        "operationId": "get_edo_identifier",
+        "responses": {
+          "200": {
+            "description": "Файл с идентификатором Сбер ЭДО"
+          }
+        }
+      }
+    },
+    "/Company_Profile_MSPro.docx": {
+      "get": {
+        "summary": "Карта предприятия МСПРО",
+        "operationId": "get_company_profile",
+        "responses": {
+          "200": {
+            "description": "Основные реквизиты компании МСПРО"
+          }
+        }
+      }
+    },
+    "/Complete_Package.pdf": {
+      "get": {
+        "summary": "Полный комплект документов",
+        "operationId": "get_full_package",
+        "responses": {
+          "200": {
+            "description": "PDF с комплектом учредительных документов"
+          }
+        }
+      }
+    },
+    "/MSPro_License_Samara_2023-08-23.pdf": {
+      "get": {
+        "summary": "Лицензия МСПРО (Самара)",
+        "operationId": "get_license_samara",
+        "responses": {
+          "200": {
+            "description": "PDF лицензии МСПРО, выданной в Самаре"
+          }
+        }
+      }
+    },
+    "/Lease_Agreement.pdf": {
+      "get": {
+        "summary": "Договор аренды помещения",
+        "operationId": "get_lease_agreement",
+        "responses": {
+          "200": {
+            "description": "Актуальный договор аренды"
+          }
+        }
+      }
+    },
+    "/Order_No4.pdf": {
+      "get": {
+        "summary": "Приказ №4",
+        "operationId": "get_order_4",
+        "responses": {
+          "200": {
+            "description": "Приказ о назначении и распределении обязанностей"
+          }
+        }
+      }
+    },
+    "/Passport_Page2.pdf": {
+      "get": {
+        "summary": "Паспорт (2 стр.)",
+        "operationId": "get_passport_page2",
+        "responses": {
+          "200": {
+            "description": "Скан 2 страницы паспорта руководителя"
+          }
+        }
+      }
+    },
+    "/Decision_No4.pdf": {
+      "get": {
+        "summary": "Решение №4",
+        "operationId": "get_decision_4",
+        "responses": {
+          "200": {
+            "description": "Решение единственного участника №4"
+          }
+        }
+      }
+    },
+    "/Decision_No5.pdf": {
+      "get": {
+        "summary": "Решение №5",
+        "operationId": "get_decision_5",
+        "responses": {
+          "200": {
+            "description": "Решение единственного участника №5"
+          }
+        }
+      }
+    },
+    "/MSPro_Charter.pdf": {
+      "get": {
+        "summary": "Устав МСПРО",
+        "operationId": "get_charter",
+        "responses": {
+          "200": {
+            "description": "PDF устава компании"
+          }
+        }
+      }
+    }
+  },
+  "components": {}
+}
