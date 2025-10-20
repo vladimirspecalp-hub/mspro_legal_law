@@ -2,9 +2,14 @@
   "openapi": "3.1.0",
   "info": {
     "title": "MSPro Legal Docs API",
-    "version": "1.0.0",
-    "description": "Файлы компании МСПРО: фирменные документы, лицензии, устав, решения, идентификаторы и шаблоны."
+    "version": "1.0.1",
+    "description": "Публичный доступ к документам компании МСПРО (фирменные шаблоны, лицензии, устав и реквизиты)"
   },
+  "servers": [
+    {
+      "url": "https://raw.githubusercontent.com/vladimirspecalp-hub/mspro_legal_law/main"
+    }
+  ],
   "paths": {
     "/Firm_Branded_Header.docx": {
       "get": {
@@ -12,7 +17,7 @@
         "operationId": "get_firm_header",
         "responses": {
           "200": {
-            "description": "DOCX-файл фирменного бланка МСПРО"
+            "description": "DOCX-файл фирменного бланка"
           }
         }
       }
@@ -23,7 +28,7 @@
         "operationId": "get_edo_identifier",
         "responses": {
           "200": {
-            "description": "Файл с идентификатором Сбер ЭДО"
+            "description": "Файл идентификатора Сбер ЭДО"
           }
         }
       }
@@ -45,7 +50,7 @@
         "operationId": "get_full_package",
         "responses": {
           "200": {
-            "description": "PDF-файл полного комплекта документов"
+            "description": "PDF полный комплект документов"
           }
         }
       }
@@ -56,7 +61,7 @@
         "operationId": "get_license_samara",
         "responses": {
           "200": {
-            "description": "PDF-файл лицензии МСПРО (Самара)"
+            "description": "PDF лицензии МСПРО"
           }
         }
       }
@@ -67,7 +72,7 @@
         "operationId": "get_lease_agreement",
         "responses": {
           "200": {
-            "description": "PDF-файл договора аренды"
+            "description": "PDF договора аренды"
           }
         }
       }
@@ -78,7 +83,7 @@
         "operationId": "get_order_4",
         "responses": {
           "200": {
-            "description": "PDF-файл приказа №4"
+            "description": "PDF приказа №4"
           }
         }
       }
@@ -89,18 +94,18 @@
         "operationId": "get_decision_5",
         "responses": {
           "200": {
-            "description": "PDF-файл решения участника №5"
+            "description": "PDF решения участника №5"
           }
         }
       }
     },
     "/MSPro_Charter.pdf": {
       "get": {
-        "summary": "Устав компании МСПРО",
+        "summary": "Устав МСПРО",
         "operationId": "get_charter",
         "responses": {
           "200": {
-            "description": "PDF-файл устава компании"
+            "description": "PDF устава компании"
           }
         }
       }
@@ -111,7 +116,7 @@
         "operationId": "get_passport_page2",
         "responses": {
           "200": {
-            "description": "PDF-файл второй страницы паспорта"
+            "description": "PDF второй страницы паспорта"
           }
         }
       }
